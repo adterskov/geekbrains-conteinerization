@@ -11,6 +11,7 @@ spec:
     matchLabels:
       app: kubedoom
   strategy: 
+    type: Recreate
   template:
     metadata:
       labels:
