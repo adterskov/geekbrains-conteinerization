@@ -2,19 +2,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: my-deployment
+  labels:
+    app: kubedoom
+  name: kubedoom
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: my-app
+      app: kubedoom
+  strategy: 
   template:
     metadata:
       labels:
-        app: my-app
+        app: kubedoom
     spec:
+      hostNetwork: true
+      serviceAccountName: kubedoom
       containers:
-      - image: nginx:1.12
-        name: nginx
+      - image: storaxdev/kubedoom:0.5.0
+        name: kubedoom
         ports:
-        - containerPort: 80
+        - containerPort: 5900
+          protocol: TCP
+          name: vnc
