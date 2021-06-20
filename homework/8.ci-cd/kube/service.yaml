@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: geekbrains
+  name: gb-conteinerization
 spec:
   selector:
     app: app
