@@ -1,13 +1,13 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: geekbrains
+  name: gb-conteinerization
 spec:
   rules:
-    - host: prod
+    - host: stage
       http:
         paths:
           - backend:
-              serviceName: geekbrains
+              serviceName: gb-conteinerization
               servicePort: 8000
             path: /users
