@@ -38,6 +38,11 @@ spec:
           readOnly: true
       hostNetwork: true
       hostPID: true
+      tolerations:
+        - effect: NoSchedule
+          operator: Exists
+      nodeSelector:
+        beta.kubernetes.io/os: linux
       volumes:
       - hostPath:
           path: /proc

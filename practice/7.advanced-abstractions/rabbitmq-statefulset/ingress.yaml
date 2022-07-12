@@ -1,12 +1,19 @@
 ---
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: rabbitmq
+  annotations:
+    kubernetes.io/ingress.class: nginx
 spec:
   rules:
   - http:
       paths:
-      - backend:
-          serviceName: rabbitmq
-          servicePort: 15672
+      - path: "/"
+        pathType: Prefix
+        backend:
+          service:
+            name: rabbitmq
+            port:
+              number: 15672
+              
