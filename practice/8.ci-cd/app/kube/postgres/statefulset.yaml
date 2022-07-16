@@ -43,4 +43,4 @@ spec:
         resources:
           requests:
             storage: 2Gi
-        storageClassName: csi-ceph-hdd-dp1
+        storageClassName: csi-ceph-hdd-ms1
