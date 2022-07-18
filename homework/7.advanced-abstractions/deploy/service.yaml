@@ -1,0 +1,16 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: prometheus
+  labels:
+    app: prometheus    
+spec:
+  clusterIP: None
+  ports:
+    - name: admin
+      protocol: TCP
+      port: 9090
+      targetPort: 9090
+  selector:
+    app: prometheus
