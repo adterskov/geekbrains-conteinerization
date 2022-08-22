@@ -17,7 +17,6 @@ RUN mkdir -p $APP_HOME
 WORKDIR $APP_HOME
 COPY --from=builder /usr/src/app/wheels /wheels
 COPY --from=builder /usr/src/app/requirements.txt .
-#RUN pip install --no-cache /wheels/*
 RUN pip install --no-index --find-links=/wheels/ -r requirements.txt
 COPY . $APP_HOME
 RUN chown -R app:app $APP_HOME
