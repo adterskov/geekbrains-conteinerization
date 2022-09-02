@@ -1,0 +1,88 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+  namespace: workspace
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: postgres
+  serviceName: postgres
+#  strategy:
+#    type: RollingUpdate
+#    rollingUpdate:
+#      maxSurge: 0
+#      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:10.13
+        env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db
+              key: postgres_password
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: db
+              key: postgres_user
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: db
+              key: postgres_db
+        - name: PGDATA
+          valueFrom:
+            secretKeyRef:
+              name: db
+              key: pgdata
+        startupProbe:
+          tcpSocket:
+            port: 5432
+          failureThreshold: 100
+          periodSeconds: 3
+        readinessProbe:
+          tcpSocket:
+            port: 5432
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          failureThreshold: 3
+          successThreshold: 1
+        livenessProbe:
+          tcpSocket:
+            port: 5432
+          initialDelaySeconds: 20
+          periodSeconds: 20
+          failureThreshold: 5 
+          successThreshold: 1
+        ports:
+        - containerPort: 5432
+          protocol: TCP
+
+        volumeMounts:
+        - name: pvc-nfs
+          mountPath: /var/lib/postgresql/data
+#      volumes:
+#      - name: pvc-nfs
+#        persistentVolumeClaim:
+#          claimName: pvc-nfs
+  volumeClaimTemplates:
+  - metadata:
+      name: pvc-nfs
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      storageClassName: "csi-high-iops-ms1"
+      resources:
+        requests:
+          storage: 10Gi

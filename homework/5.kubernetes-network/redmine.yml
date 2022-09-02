@@ -1,0 +1,67 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redmine
+  labels:
+    app: redmine
+  namespace: workspace
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: redmine
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: redmine
+    spec:
+      containers:
+      - name: redmine
+        image: redmine:4.1.1
+        env:
+        - name: REDMINE_DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: db
+              key: postgres_user
+        - name: REDMINE_DB_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: db
+              key: postgres_db
+        - name: REDMINE_SECRET_KEY_BASE
+          valueFrom:
+            secretKeyRef:
+              name: db
+              key: postgres_password
+        startupProbe:
+          httpGet:
+            path: /
+            port: 3000
+          failureThreshold: 100
+          initialDelaySeconds: 36
+          periodSeconds: 3
+
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          periodSeconds: 3
+          failureThreshold: 3
+          successThreshold: 1
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          periodSeconds: 20
+          failureThreshold: 5
+          successThreshold: 1
+        ports:
+        - containerPort: 3000
+          protocol: TCP
