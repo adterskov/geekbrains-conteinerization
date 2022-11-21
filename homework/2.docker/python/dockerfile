@@ -1,0 +1,8 @@
+FROM python:3.10-alpine3.15
+LABEL image="hw_2.docker.py"
+WORKDIR /app
+COPY . /app
+RUN pip3.10 install -r requirements.txt --upgrade
+RUN chmod +x ./app.py
+EXPOSE 8080
+RUN ./app.py
