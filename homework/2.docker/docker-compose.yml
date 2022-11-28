@@ -1,0 +1,13 @@
+version: '3.3'
+
+services:
+  web:
+    build: .
+    container_name: homework_2_docker
+    command: >
+      sh -c "python app.py"
+    volumes:
+      - .:/usr/src/python
+    ports:
+      - 8080:8080
+
