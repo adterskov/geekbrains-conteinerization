@@ -1,0 +1,3 @@
+sudo docker build -f Dockerfile -t app:l2-v1.0-python .
+sudo docker run -itd --name app -p 8080:8080 app:l2-v1.0-python
+curl localhost:8080
