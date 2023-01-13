@@ -1,0 +1,15 @@
+FROM golang as build
+
+ADD golang /app
+
+WORKDIR /app
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o server .
+
+##############################################################
+FROM alpine
+
+COPY --from=build /app/server /
+
+EXPOSE 8080
+
+CMD ["/server"]
