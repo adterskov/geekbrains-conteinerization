@@ -1,0 +1,24 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubedoom
+  namespace: kubedoom
+  labels:
+    app: kubedoom
+spec:
+  selector:
+    matchLabels:
+      app: kubedoom
+  template:
+    metadata:
+      labels:
+        app: kubedoom
+    spec:
+      hostNetwork: true
+      serviceAccountName: kubedoom
+      containers:
+        - name: app-doom
+          image: storaxdev/kubedoom:0.5.0
+          ports:
+            -  containerPort: 5900
