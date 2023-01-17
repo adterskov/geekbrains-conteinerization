@@ -1,0 +1,7 @@
+FROM python:3.9.16-alpine
+ADD python/ /app
+RUN python -m pip install --upgrade pip && \
+    pip install -r /app/requirements.txt && \
+    rm -rf /app/requirements.txt
+EXPOSE 8080
+ENTRYPOINT python /app/app.py runserver 0.0.0.0:8080
