@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minimal-ingress
+
+spec:
+  rules:
+#    - host: www.adv-it.bis
+     - http:
+        paths:
+          - backend:
+              service:
+                name: main
+                port:
+                  number: 80
+            pathType: Prefix
+            path: /

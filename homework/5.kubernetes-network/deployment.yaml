@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      volumes:
+        - name: db-volume
+          persistentVolumeClaim:
+            claimName: dbstor-pvc
+      containers:
+        - name : postgres
+          image: postgres:10.13
+          volumeMounts:
+            - name: db-volume
+              mountPath: /var/lib/postgresql/data
+          env:
+          - name: POSTGRES_PASSWORD
+            value: testpassword
+          - name: POSTGRES_USER
+            value: testuser
+          - name: POSTGRES_DB
+            value: testdatabase
+          - name: PGDATA
+            value: /var/lib/postgresql/data/pgdata

@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redmine-deploy
+  labels:
+    app: redmine
+spec:
+  selector:
+    matchLabels:
+      app: redmine
+  template:
+    metadata:
+      labels:
+        app: redmine
+    spec:
+      containers:
+        - name: redmine
+          ports:
+            - containerPort: 3000
+          image: redmine:4.1.1
+          env:
+            - name: REDMINE_DB_POSTGRES
+              value: database
+            - name: REDMINE_DB_USERNAME
+              value: testuser
+            - name: REDMINE_DB_PASSWORD
+              value: testpassword
+            - name: REDMINE_DB_DATABASE
+              value: testdatabase
+            - name: REDMINE_SECRET_KEY_BASE
+              value: supersecretkey
+
