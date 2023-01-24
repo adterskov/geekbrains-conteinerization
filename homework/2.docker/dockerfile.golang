@@ -1,0 +1,11 @@
+FROM golang:1.16-alpine AS builder
+ADD golang/ /app
+WORKDIR /app
+RUN go mod download && \
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o app . && \
+    rm -rf *.sum *.mod
+
+FROM scratch
+COPY --from=builder /app/app /
+EXPOSE 8080
+CMD ["/app"]
