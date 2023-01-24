@@ -1,0 +1,72 @@
+(base) C:\Users\janassov\Documents\me\geekbrains-conteinerization-hw\homework\4.resources-and-persistence>kubectl create -f deployment.yml
+deployment.apps/gb-4-lesson created
+
+(base) C:\Users\janassov\Documents\me\geekbrains-conteinerization-hw\homework\4.resources-and-persistence>kubectl create -f pvc.yml
+persistentvolumeclaim/gb-4-vol created
+
+(base) C:\Users\janassov\Documents\me\geekbrains-conteinerization-hw\homework\4.resources-and-persistence>kubectl create secret generic my-secret --from-literal=POSTGRES_PASSWORD=testpassword
+secret/my-secret created
+
+(base) C:\Users\janassov\Documents\me\geekbrains-conteinerization-hw\homework\4.resources-and-persistence>kubectl get pod -o wide
+NAME                          READY   STATUS    RESTARTS   AGE   IP              NODE                                      NOMINATED NODE   READINESS GATES
+gb-4-lesson-bb68fb6d5-k8lwl   1/1     Running   0          57s   10.100.39.192   kubernetes-cluster-5969-default-group-0   <none>           <none>
+
+(base) C:\Users\janassov\Documents\me\geekbrains-conteinerization-hw\homework\4.resources-and-persistence>kubectl run -t -i --rm --image postgres:10.13 test bash
+If you don't see a command prompt, try pressing enter.
+root@test:/# psql -h 10.100.39.192 -U testuser testdatabase
+Password for user testuser:
+psql (10.13 (Debian 10.13-1.pgdg90+1))
+Type "help" for help.
+
+testdatabase=# CREATE TABLE testtable (testcolumn VARCHAR (50) );
+CREATE TABLE
+testdatabase=# \dt
+           List of relations
+ Schema |   Name    | Type  |  Owner
+--------+-----------+-------+----------
+ public | testtable | table | testuser
+(1 row)
+
+testdatabase=# /q
+testdatabase-# \q
+root@test:/# exit
+exit
+Session ended, resume using 'kubectl attach test -c test -i -t' command when the pod is running
+pod "test" deleted
+
+(base) C:\Users\janassov\Documents\me\geekbrains-conteinerization-hw\homework\4.resources-and-persistence>kubectl get po
+NAME                          READY   STATUS    RESTARTS   AGE
+gb-4-lesson-bb68fb6d5-k8lwl   1/1     Running   0          7m43s
+
+(base) C:\Users\janassov\Documents\me\geekbrains-conteinerization-hw\homework\4.resources-and-persistence>kubectl delete po gb-4-lesson-bb68fb6d5-k8lwl
+pod "gb-4-lesson-bb68fb6d5-k8lwl" deleted
+
+(base) C:\Users\janassov\Documents\me\geekbrains-conteinerization-hw\homework\4.resources-and-persistence>kubectl get po
+NAME                          READY   STATUS    RESTARTS   AGE
+gb-4-lesson-bb68fb6d5-4bhhn   1/1     Running   0          5s
+
+(base) C:\Users\janassov\Documents\me\geekbrains-conteinerization-hw\homework\4.resources-and-persistence>kubectl get po -o wide
+NAME                          READY   STATUS    RESTARTS   AGE   IP              NODE                                      NOMINATED NODE   READINESS GATES
+gb-4-lesson-bb68fb6d5-4bhhn   1/1     Running   0          34s   10.100.39.194   kubernetes-cluster-5969-default-group-0   <none>           <none>
+
+(base) C:\Users\janassov\Documents\me\geekbrains-conteinerization-hw\homework\4.resources-and-persistence>kubectl run -t -i --rm --image postgres:10.13 test bash
+If you don't see a command prompt, try pressing enter.
+root@test:/# psql -h 10.100.39.194 -U testuser testdatabase
+Password for user testuser:
+psql (10.13 (Debian 10.13-1.pgdg90+1))
+Type "help" for help.
+
+testdatabase=# \dt
+           List of relations
+ Schema |   Name    | Type  |  Owner
+--------+-----------+-------+----------
+ public | testtable | table | testuser
+(1 row)
+
+testdatabase=# \q
+root@test:/# exit
+exit
+Session ended, resume using 'kubectl attach test -c test -i -t' command when the pod is running
+pod "test" deleted
+
+
