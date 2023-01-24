@@ -1,0 +1,43 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-postgre
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: my-app-postgre
+  template:
+    metadata:
+      labels:
+        app: my-app-postgre
+    spec:
+      containers:
+      - image: postgres:10.13
+        name: postgre
+        ports:
+        - containerPort: 5432
+        env:
+          - name: POSTGRES_USER
+            value: testuser
+          - name: POSTGRES_DB
+            value: testdatabase
+          - name: PGDATA
+            value: /var/lib/postgresql/data/pgdata		  
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: POSTGRES_PASSWORD
+        volumeMounts:
+          - name: data
+            mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: webdav

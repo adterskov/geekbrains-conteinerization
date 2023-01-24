@@ -1,0 +1,50 @@
+kubectl create -f C:\Users\itere\Downloads\deployment-postgre.yaml -n kubepost
+kubectl create -f C:\Users\itere\Downloads\webdav.yaml -n kubepost
+kubectl create secret  generic my-secret --from-literal=POSTGRES_PASSWORD=testpassword -n kubepost
+
+Проверка:
+PS C:\Users\itere> kubectl get pod -o wide -n kubepost
+NAME                                  READY   STATUS    RESTARTS   AGE   IP               NODE                                      NOMINATED NODE   READINESS GATES
+deployment-postgre-5884fc865c-8vr2d   1/1     Running   0          69s   10.100.213.134   kubernetes-cluster-7572-default-group-0   <none>           <none>
+PS C:\Users\itere> kubectl run -t -i --rm --image postgres:10.13 test bash -n kubepost
+If you don't see a command prompt, try pressing enter.
+root@test:/# psql -h 10.100.213.134 -U testuser testdatabase
+Password for user testuser:
+psql (10.13 (Debian 10.13-1.pgdg90+1))
+Type "help" for help.
+
+testdatabase=# CREATE TABLE testtable (testcolumn VARCHAR (50) );
+CREATE TABLE
+testdatabase=# \dt
+           List of relations
+ Schema |   Name    | Type  |  Owner
+--------+-----------+-------+----------
+ public | testtable | table | testuser
+(1 row)
+
+testdatabase=#
+
+после удаления:
+PS C:\Users\itere> kubectl delete po deployment-postgre-5884fc865c-n6kr6 -n kubepost
+pod "deployment-postgre-5884fc865c-n6kr6" deleted
+PS C:\Users\itere> kubectl get po -n kubepost
+NAME                                  READY   STATUS    RESTARTS   AGE
+deployment-postgre-5884fc865c-pm7rv   1/1     Running   0          4m34s
+PS C:\Users\itere> kubectl get pod -o wide -n kubepost
+NAME                                  READY   STATUS    RESTARTS   AGE    IP               NODE                                      NOMINATED NODE   READINESS GATES
+deployment-postgre-5884fc865c-pm7rv   1/1     Running   0          5m9s   10.100.213.138   kubernetes-cluster-7572-default-group-0   <none>           <none>
+PS C:\Users\itere> kubectl run -t -i --rm --image postgres:10.13 test bash -n kubepost
+If you don't see a command prompt, try pressing enter.
+root@test:/# psql -h 10.100.213.138 -U testuser testdatabase
+Password for user testuser:
+psql (10.13 (Debian 10.13-1.pgdg90+1))
+Type "help" for help.
+
+testdatabase-# \dt
+            List of relations
+ Schema |     Name     | Type  |  Owner
+--------+--------------+-------+----------
+ public | testtable    | table | testuser
+(1 row)
+
+testdatabase-#
