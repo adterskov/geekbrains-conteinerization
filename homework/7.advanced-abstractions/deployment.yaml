@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: prometheus
+  labels:
+    app: prometheus
+spec:
+  serviceName: prometheus
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      serviceAccount: prometheus
+      initContainers:
+        - name: permission-fix
+          image: busybox
+          command: ["sh", "-c", "chmod 777 /prometheus"]
+          volumeMounts:
+            - name: prometheus-storage-volume
+              mountPath: /prometheus
+      containers:
+        - name: prometheus
+          image: prom/prometheus:v2.19.2
+          ports:
+            - containerPort: 9090
+              name: monitoring
+          volumeMounts:
+            - name: configmap
+              mountPath: /etc/prometheus
+            - name: prometheus-storage-volume
+              mountPath: /prometheus
+      volumes:
+        - name: configmap
+          configMap:
+            defaultMode: 420
+            name: prometheus-config
+        - name: prometheus-storage-volume
+          persistentVolumeClaim:
+            claimName: pvc-storage
