@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redmine-service
+  namespace: lesson5
+spec:
+  ports:
+  - port: 80
+    targetPort: 3000
+  selector:
+    app: redmine
+  type: ClusterIP
