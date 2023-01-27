@@ -1,0 +1,52 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: gb5
+  labels:
+    app: postgres
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      service: postgres
+  template:
+    metadata:
+      labels:
+        service: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:10.13
+          ports:
+            - containerPort: 5432
+              name: pg-iport
+          env:
+            - name: POSTGRES_DB
+              value: testdatabase
+            - name: POSTGRES_USER
+              value: testuser
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pg-secret
+                  key: password
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            - name: pgdata
+              mountPath: "/var/lib/postgresql/data"
+          resources:
+            requests:
+              cpu: 50m
+              memory: 100Mi
+            limits:
+              cpu: 50m
+              memory: 100Mi
+      volumes:
+        - name: pgdata
+          persistentVolumeClaim:
+            claimName: pg-pvc-nfs-01
