@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-pv1
+  namespace: hw5
+  labels:
+    type: local
+spec:
+  storageClassName: mystorage1
+  accessModes:
+    - ReadWriteMany
+  capacity:
+    storage: 20Gi
+  hostPath:
+    path: "/data/mypostgresdata1/"

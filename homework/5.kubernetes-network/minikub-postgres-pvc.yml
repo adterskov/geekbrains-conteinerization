@@ -1,0 +1,14 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: postgres-pvc1
+  namespace: hw5
+  labels:
+    app: postgres
+spec:
+  storageClassName: mystorage1
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
