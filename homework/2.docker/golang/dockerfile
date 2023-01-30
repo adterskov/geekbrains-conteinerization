@@ -1,0 +1,9 @@
+FROM golang:1.19.3-bullseye as builder
+LABEL maintainer="Yakov Gashkov <y.gashkov@gmail.com>"
+WORKDIR /app
+COPY . /app
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o goapp .
+FROM scratch
+COPY --from=builder /app/goapp /
+EXPOSE 8080
+CMD ["./goapp"]
