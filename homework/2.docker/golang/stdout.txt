@@ -1,0 +1,33 @@
+PS W:\solutions\geekbrains-conteinerization\homework\2.docker\golang> docker build . --tag app-go:v1
+[+] Building 29.0s (11/11) FINISHED
+ => [internal] load build definition from Dockerfile                                                                                       0.0s
+ => => transferring dockerfile: 230B                                                                                                       0.0s
+ => [internal] load .dockerignore                                                                                                          0.0s
+ => => transferring context: 2B                                                                                                            0.0s
+ => [internal] load metadata for docker.io/library/golang:latest                                                                           2.1s
+ => [auth] library/golang:pull token for registry-1.docker.io                                                                              0.0s
+ => [builder 1/4] FROM docker.io/library/golang@sha256:957001e439d14422e2690652d9ff86f02694996f63e9085767cbca4f8cc45c4b                   21.9s
+ => => extracting sha256:691e33f10d2fcc5dbbed7061bd38f67acbbacf8eb32c3f81c29e877e08e57050                                                  5.4s 
+ => => extracting sha256:faf2829ac3538e681c1c4738fe706f3e165a649d056882221ada493085e65f95                                                  0.0s 
+ => [internal] load build context                                                                                                          0.0s 
+ => => transferring context: 1.50kB                                                                                                        0.0s 
+ => [builder 2/4] WORKDIR /app                                                                                                             0.9s 
+ => [builder 3/4] COPY . .                                                                                                                 0.1s 
+ => [builder 4/4] RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o server .                                                           3.8s 
+ => [stage-1 1/1] COPY --from=builder /app/server /                                                                                        0.1s 
+ => exporting to image                                                                                                                     0.1s 
+ => => exporting layers                                                                                                                    0.1s 
+ => => writing image sha256:2ea8dc53e8eff47d54259e928ab6d87c3e88efc49c390de3bde3486aa903261f                                               0.0s 
+ => => naming to docker.io/library/app-go:v1
+
+PS W:\solutions\geekbrains-conteinerization\homework\2.docker\golang> docker images
+REPOSITORY      TAG       IMAGE ID       CREATED          SIZE
+app-go          v1        2ea8dc53e8ef   2 minutes ago    6.57MB
+python-docker   latest    9bc865c396cc   41 minutes ago   926MB
+
+PS W:\solutions\geekbrains-conteinerization\homework\2.docker\golang> docker ps   
+CONTAINER ID   IMAGE       COMMAND     CREATED          STATUS          PORTS                    NAMES
+5fd6093211fa   app-go:v1   "/server"   38 seconds ago   Up 37 seconds   0.0.0.0:8080->8080/tcp   app-go
+
+PS W:\solutions\geekbrains-conteinerization\homework\2.docker\golang> curl localhost:8080
+Hello, World!

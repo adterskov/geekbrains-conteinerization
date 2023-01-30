@@ -1,0 +1,155 @@
+PS C:\work\solutions\geekbrains-conteinerization\homework\4.resources-and-persistence> kubectl.exe get secret
+NAME                       TYPE                                  DATA   AGE
+dashboard-sa-token-fnpr9   kubernetes.io/service-account-token   3      4d23h
+default-token-qfswn        kubernetes.io/service-account-token   3      4d23h
+pg-secret                  Opaque                                1      40m
+
+PS C:\work\solutions\geekbrains-conteinerization\homework\4.resources-and-persistence> kubectl.exe get pv
+NAME        CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                STORAGECLASS   REASON   AGE
+pg-pv-nfs   10Gi       RWX            Recycle          Bound    default/pg-pvc-nfs                           8m24s
+
+PS C:\work\solutions\geekbrains-conteinerization\homework\4.resources-and-persistence> kubectl.exe get pvc
+NAME         STATUS   VOLUME      CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+pg-pvc-nfs   Bound    pg-pv-nfs   10Gi       RWX                           8m11s
+
+PS C:\work\solutions\geekbrains-conteinerization\homework\4.resources-and-persistence> kubectl.exe get deployment
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+postgres   1/1     1            1           2m32s
+
+PS C:\work\solutions\geekbrains-conteinerization\homework\4.resources-and-persistence> kubectl.exe get rs
+NAME                 DESIRED   CURRENT   READY   AGE
+postgres-fcbdbb8dc   1         1         1       2m49s
+
+PS C:\work\solutions\geekbrains-conteinerization\homework\4.resources-and-persistence> kubectl.exe get po
+NAME                       READY   STATUS    RESTARTS   AGE
+postgres-fcbdbb8dc-krqk5   1/1     Running   0          3m1s
+
+PS C:\work\solutions\geekbrains-conteinerization\homework\4.resources-and-persistence> kubectl.exe describe po postgres-fcbdbb8dc-krqk5
+Name:         postgres-fcbdbb8dc-krqk5
+Namespace:    default
+Priority:     0
+Node:         kubernetes-cluster-5874-default-group-0/10.0.0.18
+Start Time:   Sat, 02 Jul 2022 20:11:14 +0300
+Labels:       pod-template-hash=fcbdbb8dc
+              service=postgres
+Annotations:  cni.projectcalico.org/containerID: 727a70f845da3bf10d16168f6b74bfb482ba680dcb64820636e1ffe7ac072578
+              cni.projectcalico.org/podIP: 10.100.254.72/32
+              cni.projectcalico.org/podIPs: 10.100.254.72/32
+Status:       Running
+IP:           10.100.254.72
+IPs:
+  IP:           10.100.254.72
+Controlled By:  ReplicaSet/postgres-fcbdbb8dc
+Containers:
+  postgres:
+    Container ID:   cri-o://52a993f9f883f73ac07b65367197f1e34505e3858985d720b108b69f0c049143
+    Image:          postgres:10.13
+    Image ID:       docker.io/library/postgres@sha256:0bed71d0c0837b4afcd4e04ea5f5a6c680d96049a0ab3770d0fbc22504282abc
+    Port:           5432/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Sat, 02 Jul 2022 20:11:16 +0300
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     100m
+      memory:  100Mi
+    Requests:
+      cpu:     100m
+      memory:  100Mi
+    Environment:
+      POSTGRES_DB:        testdatabase
+      POSTGRES_USER:      testuser
+      POSTGRES_PASSWORD:  <set to the key 'password' in secret 'pg-secret'>  Optional: false
+      PGDATA:             /var/lib/postgresql/data/pgdata
+    Mounts:
+      /var/lib/postgresql/data from pgdata (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-gqr4c (ro)
+Conditions:
+  Type              Status
+  Initialized       True
+  Ready             True
+  ContainersReady   True
+  PodScheduled      True
+Volumes:
+  pgdata:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  pg-pvc-nfs
+    ReadOnly:   false
+  kube-api-access-gqr4c:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   Guaranteed
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age    From               Message
+  ----    ------     ----   ----               -------
+  Normal  Scheduled  3m29s  default-scheduler  Successfully assigned default/postgres-fcbdbb8dc-krqk5 to kubernetes-cluster-5874-default-group-0
+  Normal  Pulled     3m29s  kubelet            Container image "postgres:10.13" already present on machine
+  Normal  Created    3m28s  kubelet            Created container postgres
+  Normal  Started    3m28s  kubelet            Started container postgres
+
+  PS C:\work\solutions\geekbrains-conteinerization\homework\4.resources-and-persistence> kubectl get pod -o wide
+NAME                       READY   STATUS    RESTARTS   AGE     IP              NODE                                      NOMINATED NODE   READINESS GATES
+postgres-fcbdbb8dc-krqk5   1/1     Running   0          4m32s   10.100.254.72   kubernetes-cluster-5874-default-group-0   <none>           <none>
+
+PS C:\work\solutions\geekbrains-conteinerization\homework\4.resources-and-persistence> kubectl run -it --rm --image postgres:10.13 test bash
+If you don't see a command prompt, try pressing enter.
+root@test:/# psql -h 10.100.254.72 -U testuser testdatabase
+Password for user testuser:
+psql (10.13 (Debian 10.13-1.pgdg90+1))
+Type "help" for help.
+
+testdatabase=# CREATE TABLE testtable (testcolumn VARCHAR (50) );
+CREATE TABLE
+testdatabase=# \dt
+           List of relations
+ Schema |   Name    | Type  |  Owner
+--------+-----------+-------+----------
+ public | testtable | table | testuser
+(1 row)
+
+testdatabase=#
+
+PS C:\work\solutions\geekbrains-conteinerization\homework\4.resources-and-persistence> kubectl.exe delete -f .\deployment.yml
+deployment.apps "postgres" deleted
+PS C:\work\solutions\geekbrains-conteinerization\homework\4.resources-and-persistence> kubectl.exe get po
+No resources found in default namespace.
+
+PS C:\work\solutions\geekbrains-conteinerization\homework\4.resources-and-persistence> kubectl.exe apply -f .\deployment.yml
+deployment.apps/postgres created
+
+PS C:\work\solutions\geekbrains-conteinerization\homework\4.resources-and-persistence> kubectl.exe get po
+NAME                       READY   STATUS    RESTARTS   AGE
+postgres-fcbdbb8dc-s2v9z   1/1     Running   0          104s
+
+PS C:\work\solutions\geekbrains-conteinerization\homework\4.resources-and-persistence> kubectl get pod -o wide
+NAME                       READY   STATUS    RESTARTS   AGE     IP              NODE                                      NOMINATED NODE   READINESS GATES
+postgres-fcbdbb8dc-s2v9z   1/1     Running   0          2m55s   10.100.254.74   kubernetes-cluster-5874-default-group-0   <none>           <none>
+
+PS C:\work\solutions\geekbrains-conteinerization\homework\4.resources-and-persistence> kubectl run -it --rm --image postgres:10.13 test bash
+If you don't see a command prompt, try pressing enter.
+root@test:/# psql -h 10.100.254.74 -U testuser testdatabase
+Password for user testuser:
+psql (10.13 (Debian 10.13-1.pgdg90+1))
+Type "help" for help.
+
+testdatabase=# \dt
+           List of relations
+ Schema |   Name    | Type  |  Owner
+--------+-----------+-------+----------
+ public | testtable | table | testuser
+(1 row)
+
+testdatabase=#
+testdatabase=# \q
+root@test:/# exit
+exit
+Session ended, resume using 'kubectl attach test -c test -i -t' command when the pod is running
+pod "test" deleted
+

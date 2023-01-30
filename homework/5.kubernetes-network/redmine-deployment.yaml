@@ -1,0 +1,46 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redmine
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      service: redmine
+  template:
+    metadata:
+      labels:
+        service: redmine
+    spec:
+      containers:
+        - name: redmine
+          image: redmine:4.1.1
+          ports:
+            - containerPort: 3000
+          env:
+            - name: REDMINE_DB_POSTGRES
+              value: database
+            - name: REDMINE_DB_USERNAME
+              value: testuser
+            - name: REDMINE_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pg-secret
+                  key: password
+            - name: REDMINE_DB_DATABASE
+              value: testdatabase
+            - name: REDMINE_SECRET_KEY_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: redmine-secret
+                  key: redmine_password
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+            limits:
+              cpu: 100m
+              memory: 100Mi

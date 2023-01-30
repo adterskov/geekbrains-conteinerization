@@ -1,0 +1,28 @@
+PS W:\solutions\geekbrains-conteinerization\homework\3.kubernetes-intro> kubectl.exe apply -f .\namespace.yaml  
+namespace/kubedoom created
+PS W:\solutions\geekbrains-conteinerization\homework\3.kubernetes-intro> kubectl.exe apply -f .\deployment.yaml
+deployment.apps/kubedoom created
+PS W:\solutions\geekbrains-conteinerization\homework\3.kubernetes-intro> kubectl.exe apply -f .\secret.yaml    
+serviceaccount/kubedoom created
+clusterrolebinding.rbac.authorization.k8s.io/kubedoom created
+
+PS W:\solutions\geekbrains-conteinerization\homework\3.kubernetes-intro> kubectl.exe get ns                  
+NAME               STATUS   AGE
+default            Active   25h
+helm-deployments   Active   25h
+ingress-nginx      Active   25h
+kube-node-lease    Active   25h
+kube-public        Active   25h
+kube-system        Active   25h
+kubedoom           Active   6m19s
+opa-gatekeeper     Active   25h
+shell-operator     Active   25h
+
+PS W:\solutions\geekbrains-conteinerization\homework\3.kubernetes-intro> kubectl.exe get rs -n kubedoom
+NAME                  DESIRED   CURRENT   READY   AGE
+kubedoom-5b67557f55   1         1         1       6m48s
+
+PS W:\solutions\geekbrains-conteinerization\homework\3.kubernetes-intro> kubectl.exe get po -n kubedoom
+NAME                        READY   STATUS    RESTARTS   AGE
+kubedoom-5b67557f55-gf9pv   1/1     Running   0          2m30s
+

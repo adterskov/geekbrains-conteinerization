@@ -1,0 +1,90 @@
+PS W:\solutions\geekbrains-conteinerization\homework\5.kubernetes-network> kubectl.exe get po
+NAME                       READY   STATUS    RESTARTS   AGE
+postgres-fcbdbb8dc-m4b4s   1/1     Running   0          17m
+test                       1/1     Running   0          11m
+
+При деплойменте redmine-deployment.yaml под вылает с ошибкой при выплонении миграций
+* Т.е. подключение к БД происходит упешно!
+* В логах нет никакой внятной информации!
+
+PS W:\solutions\geekbrains-conteinerization\homework\5.kubernetes-network> kubectl.exe exec -it test bash
+root@test:/# psql -h database -U testuser testdatabase
+Password for user testuser: 
+psql (10.13 (Debian 10.13-1.pgdg90+1))
+Type "help" for help.
+
+testdatabase=# \dt
+                 List of relations
+ Schema |          Name          | Type  |  Owner   
+--------+------------------------+-------+----------
+ public | ar_internal_metadata   | table | testuser
+ public | attachments            | table | testuser
+ public | auth_sources           | table | testuser
+ public | boards                 | table | testuser
+ public | changes                | table | testuser
+ public | changesets             | table | testuser
+ public | changesets_issues      | table | testuser
+ public | comments               | table | testuser
+ public | custom_fields          | table | testuser
+ public | custom_fields_projects | table | testuser
+ public | custom_fields_trackers | table | testuser
+ public | custom_values          | table | testuser
+ public | documents              | table | testuser
+ public | enumerations           | table | testuser
+ public | issue_categories       | table | testuser
+ public | issue_relations        | table | testuser
+ public | issue_statuses         | table | testuser
+ public | issues                 | table | testuser
+ public | journal_details        | table | testuser
+ public | journals               | table | testuser
+ public | members                | table | testuser
+
+Разбираться что там с redmine происходит очень не хочется.
+
+PS W:\solutions\geekbrains-conteinerization\homework\5.kubernetes-network> kubectl.exe apply -f .\redmine-deployment.yaml
+deployment.apps/redmine created
+PS W:\solutions\geekbrains-conteinerization\homework\5.kubernetes-network> kubectl.exe get po
+NAME                       READY   STATUS    RESTARTS   AGE
+postgres-fcbdbb8dc-m4b4s   1/1     Running   0          22m
+redmine-77dfbc5d7f-r9ztz   1/1     Running   0          5s
+test                       1/1     Running   0          16m
+
+PS W:\solutions\geekbrains-conteinerization\homework\5.kubernetes-network> kubectl.exe logs redmine-77dfbc5d7f-r9ztz
+The dependency tzinfo-data (>= 0) will be unused by any of the platforms Bundler is installing for. Bundler is installing for ruby but the dependency is only for x86-mingw32, x64-mingw32, x86-mswin32. To add those platforms to the bundle, run `bundle lock --add-platform x86-mingw32 x64-mingw32 x86-mswin32`.
+The dependency ffi (>= 0) will be unused by any of the platforms Bundler is installing for. Bundler is installing for ruby but the dependency is only for x86-mingw32, x64-mingw32, x86-mswin32. To add those platforms to the bundle, run `bundle lock --add-platform x86-mingw32 x64-mingw32 x86-mswin32`.
+The Gemfile's dependencies are satisfied
+/docker-entrypoint.sh: line 166:    23 Killed                  rake db:migrate
+
+PS W:\solutions\geekbrains-conteinerization\homework\5.kubernetes-network> kubectl.exe get svc
+NAME              TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+database          ClusterIP   10.254.144.68   <none>        5432/TCP   25m
+kubernetes        ClusterIP   10.254.0.1      <none>        443/TCP    11d
+redmine-service   ClusterIP   10.254.23.203   <none>        3000/TCP   7s
+
+PS W:\solutions\geekbrains-conteinerization\homework\5.kubernetes-network> kubectl.exe get ingress
+NAME      CLASS    HOSTS   ADDRESS   PORTS   AGE
+ingress   <none>   *                 80      21s
+
+В целях проверки ingress контроллера я использовал связку из practice
+
+PS W:\solutions\geekbrains-conteinerization\homework\5.kubernetes-network> kubectl.exe get ingress -o wide
+NAME         CLASS    HOSTS   ADDRESS     PORTS   AGE
+my-ingress   <none>   *       10.0.0.14   80      15m
+
+PS W:\solutions\geekbrains-conteinerization\practice\5.kubernetes-network> kubectl.exe get svc -A         
+NAMESPACE        NAME                                 TYPE           CLUSTER-IP       EXTERNAL-IP      PORT(S)                      AGE
+default          kubernetes                           ClusterIP      10.254.0.1       <none>           443/TCP                      11d
+default          my-service                           ClusterIP      10.254.218.126   <none>           8080/TCP                     24m
+ingress-nginx    ingress-nginx-controller             LoadBalancer   10.254.37.45     87.239.104.167   80:30080/TCP,443:30443/TCP   11d
+
+PS W:\solutions\geekbrains-conteinerization\practice\5.kubernetes-network> curl -I -k 87.239.104.167 -L -H "Host: *"
+HTTP/1.1 200 OK
+Date: Sat, 09 Jul 2022 14:07:03 GMT
+Content-Type: text/html
+Content-Length: 612
+Connection: keep-alive
+Last-Modified: Tue, 16 Nov 2021 14:44:02 GMT
+ETag: "6193c3b2-264"
+Accept-Ranges: bytes
+
+Поднятый nginx работает и доступен по внешнему IP адресу.
