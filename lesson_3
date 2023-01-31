@@ -1,0 +1,392 @@
+Здравствуйте!
+
+cat pod.yaml
+------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-pod
+spec:
+  hostNetwork: true
+  containers:
+    - name: kubedoom
+      image: storaxdev/kubedoom:0.5.0
+      ports:
+        - name: doom
+          containerPort: 5900
+          protocol: TCP
+
+------------------------
+
+cat deploy.yaml
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kube-pod
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: kube-pod
+    spec:
+      hostNetwork: true
+      serviceAccountName: kubedoom
+      containers:
+      - image: storaxdev/kubedoom:0.5.0
+        name: doom
+        ports:
+        - containerPort: 5900
+          protocol: TCP
+          
+  ------------------------
+  
+  cat manyf.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kubedoom
+  namespace: kubedoom
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kubedoom
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: kubedoom
+    namespace: kubedoom
+    ---------------------------------
+    
+    kubectl port-forward kube-pod 5900:5900 -n kubedoom
+Forwarding from 127.0.0.1:5900 -> 5900
+Forwarding from [::1]:5900 -> 5900
+---------------------------------
+kubectl get po -n kubedoom
+NAME       READY   STATUS             RESTARTS         AGE
+kube-pod   0/1     CrashLoopBackOff   18 (3m58s ago)   89m
+---------------------------------
+
+kubectl apply -f deploy.yaml -n kubedoom
+deployment.apps/my-deploy created
+
+
+kubectl get deploy -n kubedoom
+NAME        READY   UP-TO-DATE   AVAILABLE   AGE
+my-deploy   0/1     1            0           46s
+
+===================================
+kubectl get deploy -n kubedoom
+NAME        READY   UP-TO-DATE   AVAILABLE   AGE
+my-deploy   0/1     1            0           46s
+[root@mailcow 3]# kubectl logs kube-pod -n kubedoom
+2023/01/31 15:49:38 Create virtual display
+2023/01/31 15:49:40 You can now connect to it with a VNC viewer at port 5900
+2023/01/31 15:49:40 Trying to start DOOM ...
+31/01/2023 15:49:40 -usepw: found /root/.vnc/passwd
+31/01/2023 15:49:40 x11vnc version: 0.9.16 lastmod: 2019-01-05  pid: 26
+31/01/2023 15:49:40 Using X display :99
+31/01/2023 15:49:40 rootwin: 0x50e reswin: 0x200001 dpy: 0xccb84170
+31/01/2023 15:49:40
+31/01/2023 15:49:40 ------------------ USEFUL INFORMATION ------------------
+31/01/2023 15:49:40 X DAMAGE available on display, using it for polling hints.
+31/01/2023 15:49:40   To disable this behavior use: '-noxdamage'
+31/01/2023 15:49:40
+31/01/2023 15:49:40   Most compositing window managers like 'compiz' or 'beryl'
+31/01/2023 15:49:40   cause X DAMAGE to fail, and so you may not see any screen
+31/01/2023 15:49:40   updates via VNC.  Either disable 'compiz' (recommended) or
+31/01/2023 15:49:40   supply the x11vnc '-noxdamage' command line option.
+31/01/2023 15:49:40
+31/01/2023 15:49:40 Wireframing: -wireframe mode is in effect for window moves.
+31/01/2023 15:49:40   If this yields undesired behavior (poor response, painting
+31/01/2023 15:49:40   errors, etc) it may be disabled:
+31/01/2023 15:49:40    - use '-nowf' to disable wireframing completely.
+31/01/2023 15:49:40    - use '-nowcr' to disable the Copy Rectangle after the
+31/01/2023 15:49:40      moved window is released in the new position.
+31/01/2023 15:49:40   Also see the -help entry for tuning parameters.
+31/01/2023 15:49:40   You can press 3 Alt_L's (Left "Alt" key) in a row to
+31/01/2023 15:49:40   repaint the screen, also see the -fixscreen option for
+31/01/2023 15:49:40   periodic repaints.
+31/01/2023 15:49:40   Note: '-scale' is on and this can cause more problems.
+31/01/2023 15:49:40
+31/01/2023 15:49:40 XFIXES available on display, resetting cursor mode
+31/01/2023 15:49:40   to: '-cursor most'.
+31/01/2023 15:49:40   to disable this behavior use: '-cursor arrow'
+31/01/2023 15:49:40   or '-noxfixes'.
+31/01/2023 15:49:40 using XFIXES for cursor drawing.
+31/01/2023 15:49:40 GrabServer control via XTEST.
+31/01/2023 15:49:40
+31/01/2023 15:49:40 Scroll Detection: -scrollcopyrect mode is in effect to
+31/01/2023 15:49:40   use RECORD extension to try to detect scrolling windows
+31/01/2023 15:49:40   (induced by either user keystroke or mouse input).
+31/01/2023 15:49:40   If this yields undesired behavior (poor response, painting
+31/01/2023 15:49:40   errors, etc) it may be disabled via: '-noscr'
+31/01/2023 15:49:40   Also see the -help entry for tuning parameters.
+31/01/2023 15:49:40   You can press 3 Alt_L's (Left "Alt" key) in a row to
+31/01/2023 15:49:40   repaint the screen, also see the -fixscreen option for
+31/01/2023 15:49:40   periodic repaints.
+31/01/2023 15:49:40   Note: '-scale' is on and this can cause more problems.
+31/01/2023 15:49:40
+31/01/2023 15:49:40 XKEYBOARD: number of keysyms per keycode 7 is greater
+31/01/2023 15:49:40   than 4 and 51 keysyms are mapped above 4.
+31/01/2023 15:49:40   Automatically switching to -xkb mode.
+31/01/2023 15:49:40   If this makes the key mapping worse you can
+31/01/2023 15:49:40   disable it with the "-noxkb" option.
+31/01/2023 15:49:40   Also, remember "-remap DEAD" for accenting characters.
+31/01/2023 15:49:40
+31/01/2023 15:49:40 X FBPM extension not supported.
+Xlib:  extension "DPMS" missing on display ":99".
+31/01/2023 15:49:40 X display is not capable of DPMS.
+31/01/2023 15:49:40 --------------------------------------------------------
+31/01/2023 15:49:40
+31/01/2023 15:49:40 Default visual ID: 0x21
+31/01/2023 15:49:40 Read initial data from X display into framebuffer.
+31/01/2023 15:49:40 initialize_screen: fb_depth/fb_bpp/fb_Bpl 24/32/2560
+31/01/2023 15:49:40 scaling disabled for factor 1.000000 1.000000
+31/01/2023 15:49:40
+31/01/2023 15:49:40 X display :99 is 32bpp depth=24 true color
+31/01/2023 15:49:40
+31/01/2023 15:49:40 Autoprobing TCP port
+31/01/2023 15:49:40 Autoprobing selected TCP port 5900
+31/01/2023 15:49:40 Autoprobing TCP6 port
+31/01/2023 15:49:40 Autoprobing selected TCP6 port 5900
+31/01/2023 15:49:40 listen6: bind: Address already in use
+31/01/2023 15:49:40 Not listening on IPv6 interface.
+31/01/2023 15:49:40
+31/01/2023 15:49:40 Xinerama is present and active (e.g. multi-head).
+31/01/2023 15:49:40 Xinerama: number of sub-screens: 1
+31/01/2023 15:49:40 Xinerama: no blackouts needed (only one sub-screen)
+31/01/2023 15:49:40
+ALSA lib confmisc.c:767:(parse_card) cannot find card '0'
+ALSA lib conf.c:4743:(_snd_config_evaluate) function snd_func_card_driver returned error: No such file or directory
+ALSA lib confmisc.c:392:(snd_func_concat) error evaluating strings
+ALSA lib conf.c:4743:(_snd_config_evaluate) function snd_func_concat returned error: No such file or directory
+ALSA lib confmisc.c:1246:(snd_func_refer) error evaluating name
+ALSA lib conf.c:4743:(_snd_config_evaluate) function snd_func_refer returned error: No such file or directory
+ALSA lib conf.c:5231:(snd_config_expand) Evaluate error: No such file or directory
+ALSA lib pcm.c:2660:(snd_pcm_open_noupdate) Unknown PCM default
+Error initializing SDL_mixer: No available audio device
+Error initializing SDL_mixer:
+***** setup level: *****
+31/01/2023 15:49:40 fb read rate: 226 MB/sec
+31/01/2023 15:49:40 fast read: reset -wait  ms to: 10
+31/01/2023 15:49:40 fast read: reset -defer ms to: 10
+31/01/2023 15:49:40 The X server says there are 10 mouse buttons.
+31/01/2023 15:49:40 screen setup finished.
+31/01/2023 15:49:40
+
+The VNC desktop is:      minikube:0
+
+******************************************************************************
+Have you tried the x11vnc '-ncache' VNC client-side pixel caching feature yet?
+
+The scheme stores pixel data offscreen on the VNC viewer side for faster
+retrieval.  It should work with any VNC viewer.  Try it by running:
+
+    x11vnc -ncache 10 ...
+
+One can also add -ncache_cr for smooth 'copyrect' window motion.
+More info: http://www.karlrunge.com/x11vnc/faq.html#faq-client-caching
+PORT=5900
+
+Error from server (Forbidden): pods is forbidden: User "system:serviceaccount:kubedoom:default" cannot list resource "pods" in API group "" at the cluster scope
+2023/01/31 15:49:47 The following command failed: "[kubectl get pods -A -o go-template --template={{range .items}}{{.metadata.namespace}}/{{.metadata.name}} {{end}}]"
+
+===========================================
+
+kubectl get deploy -n kubedoom
+NAME        READY   UP-TO-DATE   AVAILABLE   AGE
+my-deploy   0/1     1            0           46s
+[root@mailcow 3]# kubectl logs kube-pod -n kubedoom
+2023/01/31 15:49:38 Create virtual display
+2023/01/31 15:49:40 You can now connect to it with a VNC viewer at port 5900
+2023/01/31 15:49:40 Trying to start DOOM ...
+31/01/2023 15:49:40 -usepw: found /root/.vnc/passwd
+31/01/2023 15:49:40 x11vnc version: 0.9.16 lastmod: 2019-01-05  pid: 26
+31/01/2023 15:49:40 Using X display :99
+31/01/2023 15:49:40 rootwin: 0x50e reswin: 0x200001 dpy: 0xccb84170
+31/01/2023 15:49:40
+31/01/2023 15:49:40 ------------------ USEFUL INFORMATION ------------------
+31/01/2023 15:49:40 X DAMAGE available on display, using it for polling hints.
+31/01/2023 15:49:40   To disable this behavior use: '-noxdamage'
+31/01/2023 15:49:40
+31/01/2023 15:49:40   Most compositing window managers like 'compiz' or 'beryl'
+31/01/2023 15:49:40   cause X DAMAGE to fail, and so you may not see any screen
+31/01/2023 15:49:40   updates via VNC.  Either disable 'compiz' (recommended) or
+31/01/2023 15:49:40   supply the x11vnc '-noxdamage' command line option.
+31/01/2023 15:49:40
+31/01/2023 15:49:40 Wireframing: -wireframe mode is in effect for window moves.
+31/01/2023 15:49:40   If this yields undesired behavior (poor response, painting
+31/01/2023 15:49:40   errors, etc) it may be disabled:
+31/01/2023 15:49:40    - use '-nowf' to disable wireframing completely.
+31/01/2023 15:49:40    - use '-nowcr' to disable the Copy Rectangle after the
+31/01/2023 15:49:40      moved window is released in the new position.
+31/01/2023 15:49:40   Also see the -help entry for tuning parameters.
+31/01/2023 15:49:40   You can press 3 Alt_L's (Left "Alt" key) in a row to
+31/01/2023 15:49:40   repaint the screen, also see the -fixscreen option for
+31/01/2023 15:49:40   periodic repaints.
+31/01/2023 15:49:40   Note: '-scale' is on and this can cause more problems.
+31/01/2023 15:49:40
+31/01/2023 15:49:40 XFIXES available on display, resetting cursor mode
+31/01/2023 15:49:40   to: '-cursor most'.
+31/01/2023 15:49:40   to disable this behavior use: '-cursor arrow'
+31/01/2023 15:49:40   or '-noxfixes'.
+31/01/2023 15:49:40 using XFIXES for cursor drawing.
+31/01/2023 15:49:40 GrabServer control via XTEST.
+31/01/2023 15:49:40
+31/01/2023 15:49:40 Scroll Detection: -scrollcopyrect mode is in effect to
+31/01/2023 15:49:40   use RECORD extension to try to detect scrolling windows
+31/01/2023 15:49:40   (induced by either user keystroke or mouse input).
+31/01/2023 15:49:40   If this yields undesired behavior (poor response, painting
+31/01/2023 15:49:40   errors, etc) it may be disabled via: '-noscr'
+31/01/2023 15:49:40   Also see the -help entry for tuning parameters.
+31/01/2023 15:49:40   You can press 3 Alt_L's (Left "Alt" key) in a row to
+31/01/2023 15:49:40   repaint the screen, also see the -fixscreen option for
+31/01/2023 15:49:40   periodic repaints.
+31/01/2023 15:49:40   Note: '-scale' is on and this can cause more problems.
+31/01/2023 15:49:40
+31/01/2023 15:49:40 XKEYBOARD: number of keysyms per keycode 7 is greater
+31/01/2023 15:49:40   than 4 and 51 keysyms are mapped above 4.
+31/01/2023 15:49:40   Automatically switching to -xkb mode.
+31/01/2023 15:49:40   If this makes the key mapping worse you can
+31/01/2023 15:49:40   disable it with the "-noxkb" option.
+31/01/2023 15:49:40   Also, remember "-remap DEAD" for accenting characters.
+31/01/2023 15:49:40
+31/01/2023 15:49:40 X FBPM extension not supported.
+Xlib:  extension "DPMS" missing on display ":99".
+31/01/2023 15:49:40 X display is not capable of DPMS.
+31/01/2023 15:49:40 --------------------------------------------------------
+31/01/2023 15:49:40
+31/01/2023 15:49:40 Default visual ID: 0x21
+31/01/2023 15:49:40 Read initial data from X display into framebuffer.
+31/01/2023 15:49:40 initialize_screen: fb_depth/fb_bpp/fb_Bpl 24/32/2560
+31/01/2023 15:49:40 scaling disabled for factor 1.000000 1.000000
+31/01/2023 15:49:40
+31/01/2023 15:49:40 X display :99 is 32bpp depth=24 true color
+31/01/2023 15:49:40
+31/01/2023 15:49:40 Autoprobing TCP port
+31/01/2023 15:49:40 Autoprobing selected TCP port 5900
+31/01/2023 15:49:40 Autoprobing TCP6 port
+31/01/2023 15:49:40 Autoprobing selected TCP6 port 5900
+31/01/2023 15:49:40 listen6: bind: Address already in use
+31/01/2023 15:49:40 Not listening on IPv6 interface.
+31/01/2023 15:49:40
+31/01/2023 15:49:40 Xinerama is present and active (e.g. multi-head).
+31/01/2023 15:49:40 Xinerama: number of sub-screens: 1
+31/01/2023 15:49:40 Xinerama: no blackouts needed (only one sub-screen)
+31/01/2023 15:49:40
+ALSA lib confmisc.c:767:(parse_card) cannot find card '0'
+ALSA lib conf.c:4743:(_snd_config_evaluate) function snd_func_card_driver returned error: No such file or directory
+ALSA lib confmisc.c:392:(snd_func_concat) error evaluating strings
+ALSA lib conf.c:4743:(_snd_config_evaluate) function snd_func_concat returned error: No such file or directory
+ALSA lib confmisc.c:1246:(snd_func_refer) error evaluating name
+ALSA lib conf.c:4743:(_snd_config_evaluate) function snd_func_refer returned error: No such file or directory
+ALSA lib conf.c:5231:(snd_config_expand) Evaluate error: No such file or directory
+ALSA lib pcm.c:2660:(snd_pcm_open_noupdate) Unknown PCM default
+Error initializing SDL_mixer: No available audio device
+Error initializing SDL_mixer:
+***** setup level: *****
+31/01/2023 15:49:40 fb read rate: 226 MB/sec
+31/01/2023 15:49:40 fast read: reset -wait  ms to: 10
+31/01/2023 15:49:40 fast read: reset -defer ms to: 10
+31/01/2023 15:49:40 The X server says there are 10 mouse buttons.
+31/01/2023 15:49:40 screen setup finished.
+31/01/2023 15:49:40
+
+The VNC desktop is:      minikube:0
+
+******************************************************************************
+Have you tried the x11vnc '-ncache' VNC client-side pixel caching feature yet?
+
+The scheme stores pixel data offscreen on the VNC viewer side for faster
+retrieval.  It should work with any VNC viewer.  Try it by running:
+
+    x11vnc -ncache 10 ...
+
+One can also add -ncache_cr for smooth 'copyrect' window motion.
+More info: http://www.karlrunge.com/x11vnc/faq.html#faq-client-caching
+PORT=5900
+
+Error from server (Forbidden): pods is forbidden: User "system:serviceaccount:kubedoom:default" cannot list resource "pods" in API group "" at the cluster scope
+2023/01/31 15:49:47 The following command failed: "[kubectl get pods -A -o go-template --template={{range .items}}{{.metadata.namespace}}/{{.metadata.name}} {{end}}]"
+[root@mailcow 3]#
+[root@mailcow 3]#
+[root@mailcow 3]#
+[root@mailcow 3]#
+[root@mailcow 3]#
+[root@mailcow 3]# kubectl describers kube-pod -n kubedoom
+error: unknown command "describers" for "kubectl"
+
+Did you mean this?
+        describe
+[root@mailcow 3]# kubectl describe kube-pod -n kubedoom
+error: the server doesn't have a resource type "kube-pod"
+[root@mailcow 3]# kubectl describe pod kube-pod -n kubedoom
+Name:             kube-pod
+Namespace:        kubedoom
+Priority:         0
+Service Account:  default
+Node:             minikube/192.168.49.2
+Start Time:       Tue, 31 Jan 2023 17:33:56 +0300
+Labels:           <none>
+Annotations:      <none>
+Status:           Running
+IP:               192.168.49.2
+IPs:
+  IP:  192.168.49.2
+Containers:
+  kubedoom:
+    Container ID:   docker://395903f0c62c92272ad2783bc66df463cea49b227614fa10f8ea75af4a8803c6
+    Image:          storaxdev/kubedoom:0.5.0
+    Image ID:       docker-pullable://storaxdev/kubedoom@sha256:88dfe1b5430a678a8f399593fd9b2d256c86b29518a6924965fe1f1758da8cca
+    Port:           5900/TCP
+    Host Port:      5900/TCP
+    State:          Waiting
+      Reason:       CrashLoopBackOff
+    Last State:     Terminated
+      Reason:       Error
+      Exit Code:    1
+      Started:      Tue, 31 Jan 2023 18:54:51 +0300
+      Finished:     Tue, 31 Jan 2023 18:54:58 +0300
+    Ready:          False
+    Restart Count:  20
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-gwr45 (ro)
+Conditions:
+  Type              Status
+  Initialized       True
+  Ready             False
+  ContainersReady   False
+  PodScheduled      True
+Volumes:
+  kube-api-access-gwr45:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason   Age                   From     Message
+  ----     ------   ----                  ----     -------
+  Normal   Created  16m (x18 over 81m)    kubelet  Created container kubedoom
+  Warning  BackOff  102s (x354 over 81m)  kubelet  Back-off restarting failed container
+  ==========================================
+    
