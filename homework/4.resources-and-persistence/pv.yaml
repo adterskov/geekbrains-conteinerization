@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-pv
+spec:
+  accessModes:
+    - ReadWriteMany
+  mountOptions:
+    - hard
+    - nfsvers=4.0
+    - timeo=60
+    - retrans=10
+  capacity:
+    storage: 10Gi
+  nfs:
+    server: 10.0.0.22
+    path: "/shares/share-5dae4973-3942-4400-b609-f6511a8a99a5"
+  persistentVolumeReclaimPolicy: "Recycle"
