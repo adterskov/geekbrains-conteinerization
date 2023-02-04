@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redmine-config
+  labels:
+    app: postgres
+data:
+  REDMINE_DB_POSTGRES: test
+  REDMINE_DB_DATABASE: test
+  REDMINE_SECRET_KEY_BASE: test
+  REDMINE_DB_USERNAME: test
+  REDMINE_DB_PASSWORD: test
