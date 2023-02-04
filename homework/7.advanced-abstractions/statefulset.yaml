@@ -1,0 +1,43 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: prom-ss
+  namespace: default
+spec:
+  serviceName: prom-srv
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      serviceAccount: prometheus
+      initContainers:
+      - image: busybox
+        name: mount-permissions-fix
+        command: ["sh", "-c", "chmod 777 /prometheus"]
+        volumeMounts:
+        - name: prom-data
+          mountPath: "/prometheus"
+      containers:
+      - image: prom/prometheus:v2.19.2
+        name: prometheus
+        ports:
+        - containerPort: 9090
+          protocol: TCP
+        volumeMounts:
+        - name: prom-cfg
+          mountPath: "/etc/prometheus"
+        - name: prom-data
+          mountPath: "/prometheus"
+      volumes:
+      - name: prom-cfg
+        configMap:
+          name: prom-cfg
+      - name: prom-data
+        persistentVolumeClaim:
+          claimName: prom-data
