@@ -87,8 +87,8 @@ K8S_STAGE_CI_TOKEN и K8S_PROD_CI_TOKEN соответственно.
 * Создаем секреты для авторизации Kubernetes в Gitlab registry. При создании используем Token, созданный в **Settings -> Repository -> Deploy Tokens**.
 (read_registry, write_registry permissions)
 ```bash
-kubectl create secret docker-registry gitlab-registry --docker-server=registry.gitlab.com --docker-username=<USERNAME> --docker-password=<PASSWORD> --docker-email=admin@admin.admin --namespace stage
-kubectl create secret docker-registry gitlab-registry --docker-server=registry.gitlab.com --docker-username=<USERNAME> --docker-password=<PASSWORD> --docker-email=admin@admin.admin --namespace prod
+kubectl create secret docker-registry gitlab-registry --docker-server=registry.gitlab.com --docker-username=gitlab+deploy-token-1743608 --docker-password=YrfamDa4MduKqQvhRJKV --docker-email=admin@admin.admin --namespace stage
+kubectl create secret docker-registry gitlab-registry --docker-server=registry.gitlab.com --docker-username=gitlab+deploy-token-1743608 --docker-password=YrfamDa4MduKqQvhRJKV --docker-email=admin@admin.admin --namespace prod
 ```
 
 * Патчим дефолтный сервис аккаунт для автоматического использование pull secret
@@ -133,12 +133,12 @@ kubectl apply --namespace prod -f app/kube
 
 Записать информацию о клиенте в БД
 ```bash
-curl 1.1.1.1/users -H "Host: stage" -X POST -d '{"name": "Vasiya", "age": 34, "city": "Vladivostok"}'
+curl 185.86.147.214/users -H "Host: stage" -X POST -d '{"name": "Vasiya", "age": 34, "city": "Vladivostok"}'
 ```
 
 Получить список клиентов из БД
 ```bash
-curl 1.1.1.1/users -H "Host: stage"
+curl 185.86.147.214/users -H "Host: stage"
 ```
 
 
