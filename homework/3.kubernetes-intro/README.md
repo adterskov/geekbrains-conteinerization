@@ -1,4 +1,10 @@
 # Домашнее задание для к уроку 3 - Введение в Kubernetes
+--------------------------
+Для исполнения - нужно выполнить:
+1. запускаем kubedoom.yaml
+2. запускаем clusterRoleBinding.yaml
+3. запускаем serviceaccount.yaml
+-------------------------
 
 Cоздайте namespace kubedoom
 ```
