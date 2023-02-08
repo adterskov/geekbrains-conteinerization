@@ -1,0 +1,142 @@
+ kubectl get po -n dz4
+NAME                          READY   STATUS    RESTARTS   AGE
+my-deploy1-757f6f8496-bqpph   1/1     Running   0          12m
+======================================
+kubectl get deploy  -n dz4
+NAME         READY   UP-TO-DATE   AVAILABLE   AGE
+my-deploy1   1/1     1            1           23m
+========================================
+kubectl get pv  -n dz4
+NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM        STORAGECLASS       REASON   AGE
+pvc-5cd6aaec-f201-4080-9602-4a84dd094404   10Gi       RWO            Delete           Bound    dz4/pgdata   csi-ceph-ssd-gz1            85m
+==========================================
+kubectl get pvc  -n dz4
+NAME     STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS       AGE
+pgdata   Bound    pvc-5cd6aaec-f201-4080-9602-4a84dd094404   10Gi       RWO            csi-ceph-ssd-gz1   86m
+===========================================
+kubectl describe deploy my-deploy1  -n dz4
+Name:               my-deploy1
+Namespace:          dz4
+CreationTimestamp:  Wed, 08 Feb 2023 19:46:42 +0300
+Labels:             <none>
+Annotations:        deployment.kubernetes.io/revision: 1
+Selector:           app=app1
+Replicas:           1 desired | 1 updated | 1 total | 1 available | 0 unavailable
+StrategyType:       Recreate
+MinReadySeconds:    0
+Pod Template:
+  Labels:  app=app1
+  Containers:
+   postgres:
+    Image:      postgres:10.13
+    Port:       5432/TCP
+    Host Port:  0/TCP
+    Environment:
+      POSTGRES_PASSWORD:  <set to the key 'POSTGRES_PASSWORD' in secret 'my-secret'>  Optional: false
+      POSTGRES_DB:        testdatabase
+      POSTGRES_USER:      testuser
+      PGDATA:             /var/lib/postgresql/data/pgdata
+    Mounts:
+      /var/lib/postgresql/data/ from pgdata (rw)
+  Volumes:
+   pgdata:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  pgdata
+    ReadOnly:   false
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Progressing    True    NewReplicaSetAvailable
+  Available      True    MinimumReplicasAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   my-deploy1-757f6f8496 (1/1 replicas created)
+Events:
+  Type    Reason             Age   From                   Message
+  ----    ------             ----  ----                   -------
+  Normal  ScalingReplicaSet  25m   deployment-controller  Scaled up replica set my-deploy1-757f6f8496 to 1
+ ===========================================
+ kubectl logs my-deploy1-757f6f8496-bqpph  -n dz4
+
+PostgreSQL Database directory appears to contain a database; Skipping initialization
+
+2023-02-08 16:57:24.159 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2023-02-08 16:57:24.159 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2023-02-08 16:57:24.161 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2023-02-08 16:57:24.176 UTC [23] LOG:  database system was shut down at 2023-02-08 16:57:23 UTC
+2023-02-08 16:57:24.181 UTC [1] LOG:  database system is ready to accept connections
+==================================================
+
+kubectl describe po  my-deploy1-757f6f8496-bqpph  -n dz4
+Name:             my-deploy1-757f6f8496-bqpph
+Namespace:        dz4
+Priority:         0
+Service Account:  default
+Node:             kubernetes-cluster-2211-default-group-0/10.0.0.5
+Start Time:       Wed, 08 Feb 2023 19:57:23 +0300
+Labels:           app=app1
+                  pod-template-hash=757f6f8496
+Annotations:      cni.projectcalico.org/containerID: af844a37078770a7bf3ad07fe79c7234f49e40e0a14c69d88505abf007cf6420
+                  cni.projectcalico.org/podIP: 10.100.236.138/32
+                  cni.projectcalico.org/podIPs: 10.100.236.138/32
+                  kubernetes.io/limit-ranger: LimitRanger plugin set: cpu, memory request for container postgres; cpu, memory limit for container postgres
+Status:           Running
+IP:               10.100.236.138
+IPs:
+  IP:           10.100.236.138
+Controlled By:  ReplicaSet/my-deploy1-757f6f8496
+Containers:
+  postgres:
+    Container ID:   cri-o://27df650192cfdcad61010f5ba6e631448d79a3069cd2083c942355dec1059329
+    Image:          postgres:10.13
+    Image ID:       docker.io/library/postgres@sha256:0bed71d0c0837b4afcd4e04ea5f5a6c680d96049a0ab3770d0fbc22504282abc
+    Port:           5432/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Wed, 08 Feb 2023 19:57:24 +0300
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     500m
+      memory:  512Mi
+    Requests:
+      cpu:     100m
+      memory:  64Mi
+    Environment:
+      POSTGRES_PASSWORD:  <set to the key 'POSTGRES_PASSWORD' in secret 'my-secret'>  Optional: false
+      POSTGRES_DB:        testdatabase
+      POSTGRES_USER:      testuser
+      PGDATA:             /var/lib/postgresql/data/pgdata
+    Mounts:
+      /var/lib/postgresql/data/ from pgdata (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-5hq6m (ro)
+Conditions:
+  Type              Status
+  Initialized       True
+  Ready             True
+  ContainersReady   True
+  PodScheduled      True
+Volumes:
+  pgdata:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  pgdata
+    ReadOnly:   false
+  kube-api-access-5hq6m:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   Burstable
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  16m   default-scheduler  Successfully assigned dz4/my-deploy1-757f6f8496-bqpph to kubernetes-cluster-2211-default-group-0
+  Normal  Pulled     16m   kubelet            Container image "postgres:10.13" already present on machine
+  Normal  Created    16m   kubelet            Created container postgres
+  Normal  Started    16m   kubelet            Started container postgres
+
+  
+  
