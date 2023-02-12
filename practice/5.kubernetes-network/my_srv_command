@@ -1,0 +1,23 @@
+kubectl get svc -A
+======
+NAMESPACE        NAME                            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                  AGE
+default          kubernetes                      ClusterIP   10.254.0.1       <none>        443/TCP                  145m
+dz5              database                        ClusterIP   10.254.168.74    <none>        5432/TCP                 70m
+dz5              redmine                         ClusterIP   10.254.8.205     <none>        3000/TCP                 40m
+kube-system      calico-node                     ClusterIP   None             <none>        9091/TCP                 144m
+kube-system      calico-typha                    ClusterIP   10.254.171.182   <none>        5473/TCP                 144m
+kube-system      csi-cinder-controller-service   ClusterIP   10.254.60.99     <none>        12345/TCP                144m
+kube-system      dashboard-metrics-scraper       ClusterIP   10.254.89.143    <none>        8000/TCP                 143m
+kube-system      kube-dns                        ClusterIP   10.254.0.10      <none>        53/UDP,53/TCP,9153/TCP   144m
+kube-system      kubernetes-dashboard            ClusterIP   10.254.135.132   <none>        443/TCP                  143m
+kube-system      metrics-server                  ClusterIP   10.254.69.168    <none>        443/TCP                  143m
+opa-gatekeeper   gatekeeper-webhook-service      ClusterIP   10.254.23.8      <none>        443/TCP                  142m
+
+???? нет  нэймспэйса ingress-nginx с типом LoadBalancer
+При этом load banancer есть в списке балансировщиков (приложил картину)
+
+При этом:
+ kubectl get ing -n dz5
+NAME                  CLASS    HOSTS          ADDRESS   PORTS   AGE
+my-ingress-api-ivan   <none>   my-app.local             80      41m
+my-ingress-ivan       <none>   *                        80      41m
