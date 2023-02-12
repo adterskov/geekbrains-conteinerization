@@ -1,0 +1,48 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deploy2
+spec:
+  strategy:
+    type: Recreate
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app2
+  template:
+    metadata:
+      labels:
+        app: app2
+    spec:
+      containers:
+      - image: redmine:4.1.1
+        name: redmine
+        ports:
+        - containerPort: 3000
+        env:
+          - name: REDMINE_DB_POSTGRES
+            value: database
+          - name: REDMINE_DB_USERNAME
+            value: testuser
+          - name: REDMINE_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: my-secret
+                key: POSTGRES_PASSWORD
+          - name: REDMINE_DB_DATABASE
+            value: testdatabase
+          - name: REDMINE_SECRET_KEY_BASE
+            valueFrom:
+              secretKeyRef:
+                name: my-secret2
+                key: REDMINE_SECRET_KEY_BASE
+          - name: PGDATA
+            value: /var/lib/postgresql/data/pgdata
+        volumeMounts:
+          - name: pgdata
+            mountPath: "/var/lib/postgresql/data/"
+      volumes:
+      - name: pgdata
+        persistentVolumeClaim:
+          claimName: pgdata
