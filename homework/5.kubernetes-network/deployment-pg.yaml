@@ -1,0 +1,41 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gb-5-lesson
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: gb-5-lesson
+  template:
+    metadata:
+      labels:
+        app: gb-5-lesson
+    spec:
+      containers:
+      - image: postgres:10.13
+        name: postgres
+        ports:
+        - containerPort: 5432
+        env:
+          - name: POSTGRES_USER
+            value: testuser
+          - name: POSTGRES_DB
+            value: testdatabase
+          - name: PGDATA
+            value: /var/lib/postgresql/data/pgdata		  
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: PASS
+        volumeMounts:
+          - name: pg-data
+            mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: pg-data
+        persistentVolumeClaim:
+          claimName: gb-5-vol
