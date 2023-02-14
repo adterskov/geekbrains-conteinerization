@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: redmine
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: redmine
+          image: redmine:4.1.1
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: redmine-config
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 3000
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 60
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 3000
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 60
+            initialDelaySeconds: 10
