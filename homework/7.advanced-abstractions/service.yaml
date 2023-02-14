@@ -1,0 +1,20 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: prometheus-service
+  annotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/port:   '9090'
+  namespace: default
+  labels:
+    app: prometheus
+spec:
+  type: NodePort  
+  ports:
+    - port: 8080
+      targetPort: 9090 
+      nodePort: 30000
+  selector:
+    app: prometheus-app
+
