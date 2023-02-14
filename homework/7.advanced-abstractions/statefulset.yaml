@@ -1,0 +1,47 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: prometheus
+spec:
+  serviceName: prometheus
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      serviceAccount: prometheus
+      initContainers:
+      - image: busybox
+        name: chmod-777-prometheus
+        command: ["sh", "-c", "chmod 777 /prometheus"]
+        volumeMounts:
+        - name: data
+          mountPath: /prometheus
+      containers:
+        - name: prometheus-k8s
+          image: prom/prometheus:v2.19.2
+          ports:
+            - protocol: TCP
+              containerPort: 9090
+          volumeMounts:
+            - name: data
+              mountPath: /prometheus
+            - name: config
+              mountPath: /etc/prometheus
+      volumes:
+        - name: config
+          configMap:
+            name: prometheus-config
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi
