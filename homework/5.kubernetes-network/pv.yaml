@@ -1,0 +1,20 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pg-pv-nfs-01
+spec:
+  accessModes:
+    - ReadWriteMany
+  mountOptions:
+    - hard
+    - nfsvers=4.0
+    - timeo=60
+    - retrans=10
+  capacity:
+    storage: 10Gi
+  nfs:
+    server: 10.0.0.19
+    path: "/shares/share-0f9f17be-8c19-4273-b7d7-2ab8be2503be"
+  persistentVolumeReclaimPolicy: "Recycle"
+  
