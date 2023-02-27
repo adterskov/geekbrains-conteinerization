@@ -2,18 +2,19 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  namespace: gb7
-  name: prometheus
+  name: geekbrains
   annotations:
     kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /users
 spec:
   rules:
-  - http:
+  - host: __ENV__
+    http:
       paths:
-      - path: "/"
+      - path: "/users"
         pathType: Prefix
         backend:
           service:
-            name: prometheus
+            name: geekbrains
             port:
-              number: 9090
+              number: 8000
