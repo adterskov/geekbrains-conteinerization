@@ -20,23 +20,20 @@ spec:
         name: redmine
         env:
           - name: REDMINE_DB_POSTGRES
-            value: database
+            value: "postgres-service"
           - name: REDMINE_DB_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: postgres-redmine-credentials
-                key: user
+            value: "testuser"
           - name: REDMINE_DB_DATABASE
-            value: testdatabase
+            value: "testdatabase"
           - name: REDMINE_DB_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: postgres-redmine-credentials
-                key: password
+                name: postgres-secret
+                key: PASS
           - name: REDMINE_SECRET_KEY_BASE
             valueFrom:
               secretKeyRef:
-                name: postgres-redmine-credentials
-                key: redminesecret
+                name: redmine-secret
+                key: KEY
         ports:
         - containerPort: 3000
