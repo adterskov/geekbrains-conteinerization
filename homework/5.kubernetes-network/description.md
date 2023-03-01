@@ -14,7 +14,7 @@ k create secret generic postgres-secret --from-literal=PASS=testpassword
 k apply -f postgres
 ```
 
-# Create RedMine
+#### 3. Создание Redmine
 ```bash
 k create secret generic redmine-secret --from-literal=KEY=supersecretkey
 k apply -f redmine

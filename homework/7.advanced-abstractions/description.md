@@ -13,7 +13,7 @@ k config set-context --current --namespace=l7
 k apply -f prometheus
 ```
 
-# Create RedMine
+#### 3. Создание Daemonset
 ```bash
 k create -f daemonset.yaml
 ```
