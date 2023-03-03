@@ -30,7 +30,7 @@ ssh-keygen
 ```bash
 cd app
 git init --initial-branch=main
-git remote add origin https://gitlab.com/<your_account>/geekbrains.git
+git remote add origin git@gitlab.com:artcloud/geekbrains
 git add .
 git commit -m "Initial commit"
 git push -u origin main
