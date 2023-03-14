@@ -134,12 +134,12 @@ kubectl apply --namespace prod -f app/kube
 
 Записать информацию о клиенте в БД
 ```bash
-curl 1.1.1.1/users -H "Host: stage" -X POST -d '{"name": "Vasiya", "age": 34, "city": "Vladivostok"}'
+curl 94.139.245.91/users -H "Host: stage" -X POST -d '{"name": "Vasiya", "age": 34, "city": "Vladivostok"}'
 ```
 
 Получить список клиентов из БД
 ```bash
-curl 1.1.1.1/users -H "Host: stage"
+curl 94.139.245.91/users -H "Host: stage"
 ```
 
 
