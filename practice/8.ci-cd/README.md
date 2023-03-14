@@ -42,6 +42,7 @@ git push -u origin main
 * Создаем нэймспэйс для раннера
 
 ```bash
+export KUBECONFIG=/home/zubik/.kube/kubernetes-cluster-8278_kubeconfig.yaml
 kubectl create ns gitlab
 ```
 
