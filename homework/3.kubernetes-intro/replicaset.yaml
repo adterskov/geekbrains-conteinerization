@@ -1,0 +1,25 @@
+---
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: kube-doom-replicaset
+  namespace: kubedoom
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kube-doom-pod
+  template:
+    metadata:
+      labels:
+        app: kube-doom-pod
+    spec:
+      hostNetwork: true
+      serviceAccountName: kubedoom
+      containers:
+      - image: storaxdev/kubedoom:0.5.0
+        name: kubedoom
+        ports:
+          - containerPort: 5900
+            protocol: TCP
+ 
