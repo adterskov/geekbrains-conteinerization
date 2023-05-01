@@ -1,0 +1,44 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: xeon-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: xeon-postgres
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: xeon-postgres
+    spec:
+      containers:
+      - image: postgres:10.13
+        name: postgres
+        env:
+          - name: POSTGRES_DB
+            value: "testdatabase"
+          - name: POSTGRES_USER
+            value: "testuser"
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: db_password
+          - name: PGDATA
+            value: /var/lib/postgresql/data/pgdata
+        ports:
+          - containerPort: 5432
+        volumeMounts:
+          - name: postgres-data
+            mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: postgres-data
