@@ -37,3 +37,5 @@ Using default colormap which is TrueColor.  Pixel format:
   True colour: max red 255 green 255 blue 255, shift red 16 green 8 blue 0
 Same machine: preferring raw encoding
 ```
+
+![doom](https://user-images.githubusercontent.com/86831924/235792419-00f539cf-25ae-4f7f-a5e7-accf04f16d85.png)
