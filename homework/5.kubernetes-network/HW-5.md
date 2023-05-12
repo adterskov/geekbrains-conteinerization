@@ -122,3 +122,5 @@ ingress-nginx    ingress-nginx-default-backend        ClusterIP      10.254.235.
 <link rel="stylesheet" media="all" href="/stylesheets/responsive.css?1586192449" />
 ...
 ```
+
+![redmine](https://github.com/Sergeomy/geekbrains-conteinerization/assets/86831924/cffd9cdd-6e37-48f0-b0b6-92466ab7de6b)
