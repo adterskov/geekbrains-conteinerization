@@ -82,11 +82,12 @@ opa-gatekeeper   gatekeeper-webhook-service           ClusterIP      10.254.69.1
 ```
 
 Доступ по IP:
-
-
+![prometheus-graph](https://github.com/Sergeomy/geekbrains-conteinerization/assets/86831924/f0ffac23-08cf-4397-a7ce-9f6ebcbfbb43)
 
 Добавляем DaemonSet
 ```
 # kubectl create -f daemonset.yaml
 daemonset.apps/node-exporter created
 ```
+![prometheus-targets](https://github.com/Sergeomy/geekbrains-conteinerization/assets/86831924/04ff9893-7b45-4e04-ad67-165e4061821d)
+
