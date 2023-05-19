@@ -2,10 +2,6 @@
 
 Создаём окружение
 
-Разверните в кластере сервер системy мониторинга Prometheus.
-
-* Создайте в кластере ConfigMap со следующим содержимым:
-
 ```
 # kubectl create -f configmap.yaml
 configmap/prometheus-cfg created
