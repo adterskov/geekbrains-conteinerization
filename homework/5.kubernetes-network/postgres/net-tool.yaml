@@ -1,0 +1,18 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: net-tool
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: net-tool
+  template:
+    metadata:
+      labels:
+        app: net-tool
+    spec:
+      containers:
+      - image: nginx:1.20
+        name: nginx
