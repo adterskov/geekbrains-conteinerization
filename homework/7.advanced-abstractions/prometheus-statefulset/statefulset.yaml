@@ -1,0 +1,70 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: prometheus
+spec:
+  serviceName: prometheus
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      serviceAccount: prometheus
+      terminationGracePeriodSeconds: 30
+      initContainers:
+      - image: busybox
+        name: mount-permissions-fix
+        command: ["sh", "-c", "chmod 777 /prometheus"]
+        volumeMounts:
+        - name: data-vol
+          mountPath: /prometheus
+      containers:
+        - name: prometheus
+          image: prom/prometheus:v2.19.2
+          env:
+          ports:
+            - name: prom
+              protocol: TCP
+              containerPort: 9090
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: data-vol
+              mountPath: /prometheus
+            - name: config-vol
+              mountPath: /etc/prometheus
+      volumes:
+        - name: data-vol
+          persistentVolumeClaim:
+            claimName: data-vol
+        - name: config-vol
+          configMap:
+            name: prometheus
+            items:
+              - key: prometheus.yml
+                path: prometheus.yml
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - prometheus
+                topologyKey: kubernetes.io/hostname
+  volumeClaimTemplates:
+    - metadata:
+        name: data-vol
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi
+        storageClassName: csi-ceph-hdd-ms1
