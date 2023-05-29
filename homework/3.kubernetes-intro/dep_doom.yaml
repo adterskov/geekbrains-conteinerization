@@ -1,0 +1,28 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-doom
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: 
+      maxUnavailable: 1
+      maxSurge: 0
+  selector:
+    matchLabels:
+      app: ms-app-doom
+  template:
+    metadata:
+      labels:
+        app: ms-app-doom
+    spec:
+      hostNetwork: true
+      serviceAccountName: kubedoom
+      containers:
+      - image: storaxdev/kubedoom:0.5.0
+        name: doom
+        ports:
+          - protocol: TCP
+            containerPort: 5900
