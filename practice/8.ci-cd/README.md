@@ -30,7 +30,7 @@ ssh-keygen
 ```bash
 cd app
 git init --initial-branch=main
-git remote add origin https://gitlab.com/<your_account>/geekbrains.git
+git remote add origin git@gitlab.com:artcloud/geekbrains
 git add .
 git commit -m "Initial commit"
 git push -u origin main
@@ -42,6 +42,7 @@ git push -u origin main
 * Создаем нэймспэйс для раннера
 
 ```bash
+export KUBECONFIG=/home/zubik/.kube/kubernetes-cluster-8278_kubeconfig.yaml
 kubectl create ns gitlab
 ```
 
@@ -87,8 +88,8 @@ K8S_STAGE_CI_TOKEN и K8S_PROD_CI_TOKEN соответственно.
 * Создаем секреты для авторизации Kubernetes в Gitlab registry. При создании используем Token, созданный в **Settings -> Repository -> Deploy Tokens**.
 (read_registry, write_registry permissions)
 ```bash
-kubectl create secret docker-registry gitlab-registry --docker-server=registry.gitlab.com --docker-username=<USERNAME> --docker-password=<PASSWORD> --docker-email=admin@admin.admin --namespace stage
-kubectl create secret docker-registry gitlab-registry --docker-server=registry.gitlab.com --docker-username=<USERNAME> --docker-password=<PASSWORD> --docker-email=admin@admin.admin --namespace prod
+kubectl create secret docker-registry gitlab-registry --docker-server=registry.gitlab.com --docker-username=gitlab+deploy-token-1843862 --docker-password=mtiwTrnBi3DhoC8nTaW5 --docker-email=admin@admin.admin --namespace stage
+kubectl create secret docker-registry gitlab-registry --docker-server=registry.gitlab.com --docker-username=gitlab+deploy-token-1843862 --docker-password=mtiwTrnBi3DhoC8nTaW5 --docker-email=admin@admin.admin --namespace prod
 ```
 
 * Патчим дефолтный сервис аккаунт для автоматического использование pull secret
@@ -133,12 +134,12 @@ kubectl apply --namespace prod -f app/kube
 
 Записать информацию о клиенте в БД
 ```bash
-curl 1.1.1.1/users -H "Host: stage" -X POST -d '{"name": "Vasiya", "age": 34, "city": "Vladivostok"}'
+curl 94.139.245.91/users -H "Host: stage" -X POST -d '{"name": "Vasiya", "age": 34, "city": "Vladivostok"}'
 ```
 
 Получить список клиентов из БД
 ```bash
-curl 1.1.1.1/users -H "Host: stage"
+curl 94.139.245.91/users -H "Host: stage"
 ```
 
 
