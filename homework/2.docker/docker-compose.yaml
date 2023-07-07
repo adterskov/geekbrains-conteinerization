@@ -1,0 +1,12 @@
+version: '3'
+services:
+  app-python:
+    container_name: python-test
+    build: ./python
+    ports:
+      - 5049:5000
+  app-golang:
+    container_name: golang-test
+    build: ./golang
+    ports:
+      - 5048:8080
