@@ -5,8 +5,7 @@ import os
 from flask import Flask
 
 config = {
-        "port": os.environ.get('PORT', 8080),
-        "debug": os.environ.get('DEBUG', False)
+        "debug": os.environ.get('DEBUG', True)
 }
 
 app = Flask(__name__)
@@ -16,4 +15,4 @@ def hello():
     return "Hello, World!"
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=config["port"], debug=config["debug"])
+    app.run(debug=config["debug"])
