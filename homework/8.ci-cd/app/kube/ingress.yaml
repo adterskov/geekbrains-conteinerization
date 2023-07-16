@@ -5,10 +5,10 @@ metadata:
   name: geekbrains
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/rewrite-target: /users #Фикс таргета
 spec:
   rules:
-  - host: prod
+  - host: __ENV__ #Изменен плейсхолдер по заданию
     http:
       paths:
       - path: "/users"
@@ -18,4 +18,3 @@ spec:
             name: geekbrains
             port:
               number: 8000
-              

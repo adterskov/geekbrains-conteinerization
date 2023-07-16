@@ -12,7 +12,7 @@ metadata:
   namespace: gitlab
 type: Opaque
 stringData:
-  runner-registration-token: GR1348941vUzpmh_Yi_Sh-EEEuHDa
+  runner-registration-token: GR1348941JxaPysVKn5aoFTnTDZYA #GitLab token
   runner-token: ""
 ---
 apiVersion: v1
@@ -24,17 +24,13 @@ data:
   entrypoint: |
     #!/bin/bash
     set -e
-
     mkdir -p /home/gitlab-runner/.gitlab-runner/
-
     cp /configmaps/config.toml /home/gitlab-runner/.gitlab-runner/
-
     # Set up environment variables for cache
     if [[ -f /secrets/accesskey && -f /secrets/secretkey ]]; then
       export CACHE_S3_ACCESS_KEY=$(cat /secrets/accesskey)
       export CACHE_S3_SECRET_KEY=$(cat /secrets/secretkey)
     fi
-
     if [[ -f /secrets/gcs-applicaton-credentials-file ]]; then
       export GOOGLE_APPLICATION_CREDENTIALS="/secrets/gcs-applicaton-credentials-file"
     elif [[ -f /secrets/gcs-application-credentials-file ]]; then
@@ -46,76 +42,61 @@ data:
         export CACHE_GCS_PRIVATE_KEY=$(echo -e $(cat /secrets/gcs-private-key))
       fi
     fi
-
     if [[ -f /secrets/azure-account-name && -f /secrets/azure-account-key ]]; then
       export CACHE_AZURE_ACCOUNT_NAME=$(cat /secrets/azure-account-name)
       export CACHE_AZURE_ACCOUNT_KEY=$(cat /secrets/azure-account-key)
     fi
-
     if [[ -f /secrets/runner-registration-token ]]; then
       export REGISTRATION_TOKEN=$(cat /secrets/runner-registration-token)
     fi
-
     if [[ -f /secrets/runner-token ]]; then
       export CI_SERVER_TOKEN=$(cat /secrets/runner-token)
     fi
-
     # Validate this also at runtime in case the user has set a custom secret
     if [[ ! -z "$CI_SERVER_TOKEN" && "1" -ne "1" ]]; then
       echo "Using a runner token with more than 1 replica is not supported."
       exit 1
     fi
-
     # Register the runner
     if ! sh /configmaps/register-the-runner; then
       exit 1
     fi
-
     # Run pre-entrypoint-script
     if ! bash /configmaps/pre-entrypoint-script; then
       exit 1
     fi
-
     # Start the runner
     exec /entrypoint run --user=gitlab-runner \
       --working-directory=/home/gitlab-runner
-
   config.toml: |
     concurrent = 10
     check_interval = 30
     log_level = "info"
-
-
   config.template.toml:   |
     [[runners]]
       [runners.kubernetes]
         namespace = "gitlab"
         image = "ubuntu:16.04"
-
+        privileged = true
+# privileged = true необходимо для работы dind
 
   register-the-runner: |
     #!/bin/bash
     MAX_REGISTER_ATTEMPTS=30
-
     for i in $(seq 1 "${MAX_REGISTER_ATTEMPTS}"); do
       echo "Registration attempt ${i} of ${MAX_REGISTER_ATTEMPTS}"
       /entrypoint register \
         --template-config /configmaps/config.template.toml \
         --non-interactive
-
       retval=$?
-
       if [ ${retval} = 0 ]; then
         break
       elif [ ${i} = ${MAX_REGISTER_ATTEMPTS} ]; then
         exit 1
       fi
-
       sleep 5
     done
-
     exit 0
-
   check-live: |
     #!/bin/bash
     if /usr/bin/pgrep -f .*register-the-runner; then
@@ -125,7 +106,6 @@ data:
     else
       exit 1
     fi
-
   pre-entrypoint-script: |
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -188,11 +168,8 @@ spec:
         lifecycle:
           preStop:
             exec:
-              command: ["/entrypoint", "unregister", "--config=/home/gitlab-runner/.gitlab-runner/config.toml"]
-        lifecycle:
-          preStop:
-            exec:
-              command: ["/entrypoint", "unregister", "--all-runners"]
+              - command: ["/entrypoint", "unregister", "--config=/home/gitlab-runner/.gitlab-runner/config.toml"]
+              - command: ["/entrypoint", "unregister", "--all-runners"]
         command: ["/usr/bin/dumb-init", "--", "/bin/bash", "/configmaps/entrypoint"]
         env:
         - name: CI_SERVER_URL
