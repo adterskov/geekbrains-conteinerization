@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-dep
+spec:
+  strategy:
+    type: Recreate
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - image: postgres:10.13
+        name: postgres
+        ports:
+        - containerPort: 5432
+          protocol: TCP
+        env:
+        - name: POSTGRES_USER
+          value: testuser
+        - name: POSTGRES_DB
+          value: testdatabase
+        - name: PGDATA
+          value: var/lib/postgresql/data/pgdata
+        envFrom:
+        - secretRef:
+            name: userpass
+        volumeMounts:
+        - name: pvc
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: pvc
+        persistentVolumeClaim:
+          claimName: mystorage
