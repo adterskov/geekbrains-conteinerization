@@ -5,7 +5,7 @@ import os
 from flask import Flask
 
 config = {
-        "port": os.environ.get('PORT', 8080),
+        "port": os.environ.get('PORT', 8089),
         "debug": os.environ.get('DEBUG', False)
 }
 
