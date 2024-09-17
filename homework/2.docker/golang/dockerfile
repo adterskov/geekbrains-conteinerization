@@ -1,0 +1,15 @@
+FROM golang:1.20rc3-alpine3.17 as build
+
+ADD . /app
+
+WORKDIR /app
+
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o server .
+
+FROM alpine
+
+COPY --from=build /app/server /
+
+EXPOSE 8080
+
+ENTRYPOINT ["/server"]
