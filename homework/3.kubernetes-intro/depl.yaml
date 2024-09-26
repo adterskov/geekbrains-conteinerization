@@ -1,0 +1,30 @@
+---
+apiVersion: apps/v1 # до версии 1.9.0 нужно использовать apps/v1beta2
+kind: Deployment
+metadata:
+  name: kubedoom-deployment
+  namespace: kubedoom
+  labels:
+    app: doom # Просто повторил за манами из офф доки кубика, поидее это не обязательно
+spec:
+  selector:
+    matchLabels:
+      app: doom
+  replicas: 1 # Не обязательно по умолчанию один
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: doom
+    spec:
+      hostNetwork: true
+      serviceAccountName: kubedoom
+      containers:
+        - name: doom
+          image: storaxdev/kubedoom:0.5.0
+          ports:
+            - containerPort: 5900
+              protocol: TCP
